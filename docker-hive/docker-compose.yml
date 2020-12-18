@@ -1,0 +1,64 @@
+version: "3"
+
+services:
+  namenode:
+    networks:
+      - hive
+    image: rookiefly/hadoop-namenode:2.10.1
+    # volumes:
+    #   - namenode:/hadoop/dfs/name
+    environment:
+      - CLUSTER_NAME=test
+    env_file:
+      - ./hadoop-hive.env
+    ports:
+      - "50070:50070"
+  datanode:
+    networks:
+      - hive
+    image: rookiefly/hadoop-datanode:2.10.1
+    # volumes:
+    #   - datanode:/hadoop/dfs/data
+    env_file:
+      - ./hadoop-hive.env
+    environment:
+      SERVICE_PRECONDITION: "namenode:50070"
+    ports:
+      - "50075:50075"
+  hive-server:
+    networks:
+      - hive
+    image: rookiefly/hive:2.3.7
+    env_file:
+      - ./hadoop-hive.env
+    environment:
+      HIVE_CORE_CONF_javax_jdo_option_ConnectionURL: "jdbc:postgresql://hive-metastore/metastore"
+      SERVICE_PRECONDITION: "hive-metastore:9083"
+    ports:
+      - "10000:10000"
+  hive-metastore:
+    networks:
+      - hive
+    image: rookiefly/hive:2.3.7
+    env_file:
+      - ./hadoop-hive.env
+    command: /opt/hive/bin/hive --service metastore
+    environment:
+      SERVICE_PRECONDITION: "namenode:50070 datanode:50075 hive-metastore-postgresql:5432"
+    ports:
+      - "9083:9083"
+  hive-metastore-postgresql:
+    networks:
+      - hive
+    image: rookiefly/hive-metastore-postgresql:2.3.0
+  presto-coordinator:
+    networks:
+      - hive
+    image: shawnzhu/prestodb:340
+    ports:
+      - "8080:8080"
+
+networks:
+  hive:
+    name: hive
+    driver: bridge
