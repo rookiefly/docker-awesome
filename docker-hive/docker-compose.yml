@@ -51,12 +51,20 @@ services:
     networks:
       - hive
     image: rookiefly/hive-metastore-postgresql:2.3.0
-  presto-coordinator:
+  hue:
     networks:
       - hive
-    image: shawnzhu/prestodb:340
+    image: gethue/hue:latest
     ports:
-      - "8080:8080"
+      - "8888:8888"
+  mysqldb:
+    networks:
+      - hive
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
 
 networks:
   hive:
