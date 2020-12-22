@@ -1,4 +1,4 @@
-FROM rookiefly/hadoop-base:2.10.1
+FROM rookiefly/hbase-base:2.3.3
 
 MAINTAINER rookiefly <rookiefly@163.com>
 
