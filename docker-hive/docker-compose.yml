@@ -28,6 +28,8 @@ services:
       SERVICE_PRECONDITION: "namenode:50070"
     ports:
       - "50075:50075"
+    depends_on:
+      - "namenode"
 
   hive-server:
     container_name: hive-server
@@ -41,6 +43,8 @@ services:
       SERVICE_PRECONDITION: "hive-metastore:9083"
     ports:
       - "10000:10000"
+    depends_on:
+      - "hive-metastore"
 
   hive-metastore:
     container_name: hive-metastore
@@ -54,6 +58,10 @@ services:
       SERVICE_PRECONDITION: "namenode:50070 datanode:50075 hive-metastore-postgresql:5432"
     ports:
       - "9083:9083"
+    depends_on:
+      - "hive-metastore-postgresql"
+      - "namenode"
+      - "datanode"
 
   hive-metastore-postgresql:
     container_name: hive-metastore-postgresql
@@ -62,22 +70,33 @@ services:
     image: rookiefly/hive-metastore-postgresql:2.3.0
 
   hue:
+    image: rookiefly/hue:latest
     container_name: hue
     networks:
       - hive
-    image: gethue/hue:latest
     ports:
       - "8888:8888"
-      
+    # volumes:
+    #   - ./hue.ini:/usr/share/hue/desktop/conf/hue.ini
+    depends_on:
+      - "mysqldb"
+
   mysqldb:
+    image: mysql:5.7
     container_name: mysqldb
     networks:
       - hive
-    image: mysql:5.7
-    environment:
-      MYSQL_ROOT_PASSWORD: root
     ports:
       - "3306:3306"
+    command: --init-file /data/application/init.sql
+    volumes:
+      - ./init.sql:/data/application/init.sql
+    environment:
+      MYSQL_ROOT_USER: root
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: hue
+      MYSQL_USER: hue
+      MYSQL_PASSWORD: hue
 
   zoo:
     image: zookeeper:3.4.10
@@ -102,6 +121,10 @@ services:
       SERVICE_PRECONDITION: "namenode:50070 datanode:50075 zoo:2181"
     ports:
       - 16010:16010
+    depends_on:
+      - "zoo"
+      - "namenode"
+      - "datanode"
 
   hbase-region:
     image: rookiefly/hbase-regionserver:2.3.3
@@ -116,6 +139,12 @@ services:
       SERVICE_PRECONDITION: "namenode:50070 datanode:50075 zoo:2181 hbase-master:16010"
     ports:
       - 16030:16030
+    depends_on:
+      - "zoo"
+      - "namenode"
+      - "datanode"
+      - "hbase-master"
+
 networks:
   hive:
     name: hive
