@@ -40,3 +40,14 @@ Then query it from PrestoDB. You can get [presto.jar](https://prestosql.io/docs/
   $ ./presto.jar --server localhost:8080 --catalog hive --schema default
   presto> select * from pokes;
 ```
+
+```
+create table hive_test(
+foo INT,
+bar STRING
+)STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler'
+WITH SERDEPROPERTIES ("hbase.columns.mapping" = ":key,f2:bar")
+TBLPROPERTIES ("hbase.table.name" = "hbase_test");
+
+INSERT INTO hive_test (foo, bar) SELECT foo, bar FROM pokes;
+```
