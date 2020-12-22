@@ -1,5 +1,7 @@
 # docker-hbase
 
+This is a docker container for Apache Hbase 2.3.3. It is based on https://github.com/rookiefly/docker-awesome/tree/master/docker-hadoop so check there for Hadoop configurations.
+
 # Standalone
 To run standalone hbase:
 ```

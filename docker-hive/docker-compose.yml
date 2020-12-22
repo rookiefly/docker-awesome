@@ -2,6 +2,7 @@ version: "3"
 
 services:
   namenode:
+    container_name: namenode
     networks:
       - hive
     image: rookiefly/hadoop-namenode:2.10.1
@@ -15,6 +16,7 @@ services:
       - "50070:50070"
 
   datanode:
+    container_name: datanode
     networks:
       - hive
     image: rookiefly/hadoop-datanode:2.10.1
@@ -28,6 +30,7 @@ services:
       - "50075:50075"
 
   hive-server:
+    container_name: hive-server
     networks:
       - hive
     image: rookiefly/hive:2.3.7
@@ -40,6 +43,7 @@ services:
       - "10000:10000"
 
   hive-metastore:
+    container_name: hive-metastore
     networks:
       - hive
     image: rookiefly/hive:2.3.7
@@ -52,11 +56,13 @@ services:
       - "9083:9083"
 
   hive-metastore-postgresql:
+    container_name: hive-metastore-postgresql
     networks:
       - hive
     image: rookiefly/hive-metastore-postgresql:2.3.0
 
   hue:
+    container_name: hue
     networks:
       - hive
     image: gethue/hue:latest
@@ -64,6 +70,7 @@ services:
       - "8888:8888"
       
   mysqldb:
+    container_name: mysqldb
     networks:
       - hive
     image: mysql:5.7
