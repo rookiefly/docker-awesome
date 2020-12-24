@@ -1,27 +1,29 @@
-version: "3"
+version: "3.2"
 
 services:
   namenode:
-    container_name: namenode
+    hostname: namenode
     networks:
       - hive
     image: rookiefly/hadoop-namenode:2.10.1
-    # volumes:
-    #   - namenode:/hadoop/dfs/name
+    volumes:
+      - hadoop_namenode:/hadoop/dfs/name
     environment:
       - CLUSTER_NAME=test
     env_file:
       - ./hadoop-hive.env
     ports:
       - "50070:50070"
+    deploy:
+      replicas: 1
 
   datanode:
-    container_name: datanode
+    hostname: datanode
     networks:
       - hive
     image: rookiefly/hadoop-datanode:2.10.1
-    # volumes:
-    #   - datanode:/hadoop/dfs/data
+    volumes:
+      - hadoop_datanode:/hadoop/dfs/data
     env_file:
       - ./hadoop-hive.env
     environment:
@@ -30,9 +32,11 @@ services:
       - "50075:50075"
     depends_on:
       - "namenode"
+    deploy:
+      replicas: 1
 
   hive-server:
-    container_name: hive-server
+    hostname: hive-server
     networks:
       - hive
     image: rookiefly/hive:2.3.7
@@ -45,9 +49,11 @@ services:
       - "10000:10000"
     depends_on:
       - "hive-metastore"
+    deploy:
+      replicas: 1
 
   hive-metastore:
-    container_name: hive-metastore
+    hostname: hive-metastore
     networks:
       - hive
     image: rookiefly/hive:2.3.7
@@ -62,16 +68,22 @@ services:
       - "hive-metastore-postgresql"
       - "namenode"
       - "datanode"
+    deploy:
+      replicas: 1
 
   hive-metastore-postgresql:
-    container_name: hive-metastore-postgresql
+    hostname: hive-metastore-postgresql
     networks:
       - hive
     image: rookiefly/hive-metastore-postgresql:2.3.0
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
 
   hue:
     image: rookiefly/hue:latest
-    container_name: hue
+    hostname: hue
     networks:
       - hive
     ports:
@@ -80,16 +92,19 @@ services:
     #   - ./hue.ini:/usr/share/hue/desktop/conf/hue.ini
     depends_on:
       - "mysqldb"
+    deploy:
+      replicas: 1
 
   mysqldb:
     image: mysql:5.7
-    container_name: mysqldb
+    hostname: mysqldb
     networks:
       - hive
     ports:
       - "3306:3306"
     command: --init-file /data/application/init.sql
     volumes:
+      - mysqldb_data:/var/lib/mysql
       - ./init.sql:/data/application/init.sql
     environment:
       MYSQL_ROOT_USER: root
@@ -97,23 +112,30 @@ services:
       MYSQL_DATABASE: hue
       MYSQL_USER: hue
       MYSQL_PASSWORD: hue
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
 
   zoo:
     image: zookeeper:3.4.10
     networks:
       - hive
-    container_name: zoo
+    hostname: zoo
     environment:
       ZOO_MY_ID: 1
       ZOO_SERVERS: server.1=0.0.0.0:2888:3888
     ports:
       - 2181:2181
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
 
   hbase-master:
     image: rookiefly/hbase-master:2.3.3
     networks:
       - hive
-    container_name: hbase-master
     hostname: hbase-master
     env_file:
       - ./hbase-distributed-local.env
@@ -125,12 +147,13 @@ services:
       - "zoo"
       - "namenode"
       - "datanode"
+    deploy:
+      replicas: 1
 
   hbase-region:
     image: rookiefly/hbase-regionserver:2.3.3
     networks:
       - hive
-    container_name: hbase-regionserver
     hostname: hbase-regionserver
     env_file:
       - ./hbase-distributed-local.env
@@ -144,11 +167,12 @@ services:
       - "namenode"
       - "datanode"
       - "hbase-master"
+    deploy:
+      replicas: 1
 
 networks:
   hive:
-    name: hive
-    driver: bridge
+    driver: overlay
 
 volumes:
   hadoop_namenode:
