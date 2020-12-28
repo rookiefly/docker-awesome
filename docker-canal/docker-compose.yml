@@ -6,7 +6,7 @@ services:
     image: rookiefly/mysql:latest
     container_name: mysqldb
     volumes:
-      - ./mysql-data:/var/lib/mysql
+      # - mysql-data:/var/lib/mysql
       - ./mysql-init-files:/docker-entrypoint-initdb.d
     #restart: always
     environment:
@@ -61,13 +61,25 @@ services:
       - canal-net
     hostname: zoo
     volumes:
-      - ./zoo/data:/var/lib/zookeeper/data
-      - ./zoo/log:/var/lib/zookeeper/log
+      - zoo-data:/var/lib/zookeeper/data
+      - zoo-log:/var/lib/zookeeper/log
     environment:
       ZOO_MY_ID: 1
       ZOO_SERVERS: server.1=0.0.0.0:2888:3888
     ports:
       - 2181:2181
+
+volumes:
+  mysql-data:
+    driver: local
+  canal-admin-logs:
+    driver: local
+  canal-server-logs:
+    driver: local
+  zoo-data:
+    driver: local
+  zoo-log:
+    driver: local
 
 networks:
   canal-net:

@@ -1,4 +1,6 @@
-CREATE USER canal IDENTIFIED BY 'canal';
+-- CREATE USER 'canal'@'%' IDENTIFIED BY 'canal';
+
 GRANT SELECT, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO 'canal'@'%';
 FLUSH PRIVILEGES;
-create schema dictdb;
+
+CREATE DATABASE `dictdb`;

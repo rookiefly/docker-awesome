@@ -1,9 +1,3 @@
-
--- Dumping database structure for kafka_center
-CREATE DATABASE IF NOT EXISTS `kafka_center` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_bin */;
-USE `kafka_center`;
-
-
 -- Dumping structure for table kafka_center.alert_group
 CREATE TABLE IF NOT EXISTS `alert_group` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
