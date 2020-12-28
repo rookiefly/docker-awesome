@@ -1,0 +1,90 @@
+version: "3.2"
+services:
+  zookeeper:
+    image: zookeeper:3.4.10
+    ports:
+      - "2181:2181"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+  kafka:
+    image: rookiefly/kafka:latest
+    ports:
+      - target: 9094
+        published: 9094
+        protocol: tcp
+        mode: host
+    deploy:
+      mode: global
+    environment:
+      HOSTNAME_COMMAND: "docker info | grep ^Name: | cut -d' ' -f 2"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://:9092,OUTSIDE://_{HOSTNAME_COMMAND}:9094
+      KAFKA_LISTENERS: INSIDE://:9092,OUTSIDE://:9094
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  kafka-center:
+    image: xaecbd/kafka-center:2.3.0
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./application.properties:/opt/app/kafka-center/config/application.properties
+    depends_on:
+      - mysqldb
+      - elasticsearch
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+    hostname: "{{.Node.Hostname}}"
+    environment:
+      - node.name={{.Node.Hostname}}
+      - cluster.name=docker-test
+      - "ES_JAVA_OPTS=-Xmx2g"
+      - discovery.seed_hosts=elasticsearch
+      - cluster.initial_master_nodes=node1,node2
+      - node.ml=false
+      - xpack.ml.enabled=false
+      - xpack.monitoring.enabled=false
+      - xpack.security.enabled=false
+      - xpack.watcher.enabled=false
+      - bootstrap.memory_lock=false
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    deploy:
+      mode: global
+      endpoint_mode: dnsrr
+  mysqldb:
+    image: rookiefly/mysql:latest
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./mysql-init-files:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: dictdb
+      MYSQL_USER: rookiefly
+      MYSQL_PASSWORD: rookiefly
+    ports:
+      - "3306:3306"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+
+volumes:
+  elasticsearch-data:
+    driver: local
+  mysql-data:
+    driver: local
+  zoo-data:
+    driver: local
+  zoo-log:
+    driver: local

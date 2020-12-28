@@ -1,0 +1,74 @@
+version: "3.5"
+
+services:
+
+  mysqldb:
+    image: rookiefly/mysql:latest
+    container_name: mysqldb
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+      - ./mysql-init-files:/docker-entrypoint-initdb.d
+    #restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: canal_manager
+      MYSQL_USER: canal
+      MYSQL_PASSWORD: canal
+    ports:
+      - "3306:3306"
+    networks:
+      - canal-net
+
+  canal-admin:
+    image: canal/canal-admin:v1.1.4
+    container_name: canal-admin
+    volumes:
+      - ~/canal-admin/logs:/home/admin/canal-admin/logs
+    #restart: always
+    #    environment:
+    env_file:
+      - ./canal-admin.env
+    ports:
+      - "8089:8089"
+    networks:
+      - canal-net
+    depends_on:
+      - mysqldb
+
+  canal-server:
+    image: canal/canal-server:v1.1.4
+    container_name: canal-server
+    volumes:
+      - ~/canal-server/logs:/home/admin/canal-server/logs
+    #restart: always
+    #    environment:
+    env_file:
+      - ./canal-server.env
+    ports:
+      - "11110:11110" # admin
+      - "11111:11111" # canal
+      - "11112:11112" # metrics
+      - "9100:9100" # exporter
+    networks:
+      - canal-net
+    depends_on:
+      - canal-admin
+
+  zoo:
+    image: zookeeper:3.4.10
+    container_name: zoo
+    networks:
+      - canal-net
+    hostname: zoo
+    volumes:
+      - ./zoo/data:/var/lib/zookeeper/data
+      - ./zoo/log:/var/lib/zookeeper/log
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=0.0.0.0:2888:3888
+    ports:
+      - 2181:2181
+
+networks:
+  canal-net:
+    driver: bridge
