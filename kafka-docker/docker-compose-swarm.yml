@@ -1,4 +1,5 @@
-version: "3.2"
+version: "3.5"
+
 services:
   zookeeper:
     image: zookeeper:3.4.10
@@ -9,13 +10,12 @@ services:
       replicas: 1
       placement:
         constraints: [node.role == manager]
+
   kafka:
     image: rookiefly/kafka:latest
     ports:
-      - target: 9094
-        published: 9094
-        protocol: tcp
-        mode: host
+      - "9092:9092"
+      - "9094:9094"
     deploy:
       mode: global
     environment:
@@ -27,6 +27,7 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+
   kafka-center:
     image: xaecbd/kafka-center:2.3.0
     ports:
@@ -41,13 +42,16 @@ services:
       replicas: 1
       placement:
         constraints: [node.role == manager]
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
     hostname: "{{.Node.Hostname}}"
+    ports:
+      - 9200:9200
     environment:
       - node.name={{.Node.Hostname}}
       - cluster.name=docker-test
-      - "ES_JAVA_OPTS=-Xmx2g"
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
       - discovery.seed_hosts=elasticsearch
       - cluster.initial_master_nodes=node1,node2
       - node.ml=false
@@ -61,6 +65,7 @@ services:
     deploy:
       mode: global
       endpoint_mode: dnsrr
+
   mysqldb:
     image: rookiefly/mysql:latest
     volumes:
@@ -68,9 +73,7 @@ services:
       - ./mysql-init-files:/docker-entrypoint-initdb.d
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: dictdb
-      MYSQL_USER: rookiefly
-      MYSQL_PASSWORD: rookiefly
+      MYSQL_DATABASE: kafka_center
     ports:
       - "3306:3306"
     deploy:
