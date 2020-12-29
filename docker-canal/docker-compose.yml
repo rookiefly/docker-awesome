@@ -23,7 +23,8 @@ services:
     image: canal/canal-admin:v1.1.4
     container_name: canal-admin
     volumes:
-      - ~/canal-admin/logs:/home/admin/canal-admin/logs
+      - canal-admin-logs:/home/admin/canal-admin/logs
+      - /var/run/docker.sock:/var/run/docker.sock
     #restart: always
     #    environment:
     env_file:
@@ -39,7 +40,8 @@ services:
     image: canal/canal-server:v1.1.4
     container_name: canal-server
     volumes:
-      - ~/canal-server/logs:/home/admin/canal-server/logs
+      - canal-server-logs:/home/admin/canal-server/logs
+      - /var/run/docker.sock:/var/run/docker.sock
     #restart: always
     #    environment:
     env_file:
