@@ -1,6 +1,6 @@
 FROM openjdk:8u212-jre-alpine
 
-ARG kafka_version=2.6.0
+ARG kafka_version=2.7.0
 ARG scala_version=2.13
 ARG glibc_version=2.31-r0
 ARG vcs_ref=unspecified
@@ -35,8 +35,6 @@ RUN apk add --no-cache bash curl jq docker \
  && wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk \
  && apk add --no-cache --allow-untrusted glibc-${GLIBC_VERSION}.apk \
  && rm glibc-${GLIBC_VERSION}.apk
-
-COPY overrides /opt/overrides
 
 VOLUME ["/kafka"]
 

@@ -1,4 +1,4 @@
-version: '3.2'
+version: "3.2"
 services:
   zookeeper:
     image: zookeeper:3.4.10
@@ -9,8 +9,11 @@ services:
     ports:
       - "9092:9092"
     environment:
-      KAFKA_ADVERTISED_HOST_NAME: 192.168.99.100
+      KAFKA_ADVERTISED_HOST_NAME: kafka1.test.local
       KAFKA_CREATE_TOPICS: "test:1:1"
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=kafka1.test.local -Dcom.sun.management.jmxremote.rmi.port=1099"
+      JMX_PORT: 1099
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
