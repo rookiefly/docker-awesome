@@ -23,9 +23,7 @@ services:
       KAFKA_CREATE_TOPICS: "example:1:1"
       KAFKA_LOG_DIRS: /kafka/logs
       KAFKA_ADVERTISED_PORT: 9092
-      JMX_PORT: 1099
-      JMX_HOST: kafka1.test.local
-      KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=${JMX_HOST} -Dcom.sun.management.jmxremote.rmi.port=${JMX_PORT}"
+      KAFKA_JMX_OPTS: -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=${JMX_HOST} -Dcom.sun.management.jmxremote.rmi.port=${JMX_PORT}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - kafka-data:/kafka
@@ -33,6 +31,29 @@ services:
       - kafka
     depends_on:
       - zookeeper
+
+  # ksqldb-server:
+  #   image: confluentinc/ksqldb-server:0.14.0
+  #   hostname: ksqldb-server
+  #   container_name: ksqldb-server
+  #   depends_on:
+  #     - kafka1
+  #   ports:
+  #     - "8088:8088"
+  #   environment:
+  #     KSQL_LISTENERS: http://0.0.0.0:8088
+  #     KSQL_BOOTSTRAP_SERVERS: kafka1:9092
+  #     KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
+  #     KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
+
+  # ksqldb-cli:
+  #   image: confluentinc/ksqldb-cli:0.14.0
+  #   container_name: ksqldb-cli
+  #   depends_on:
+  #     - kafka1
+  #     - ksqldb-server
+  #   entrypoint: /bin/sh
+  #   tty: true
 
   kafka-center:
     container_name: KafkaCenter
@@ -46,9 +67,6 @@ services:
       - kafka
     depends_on:
       - mysql
-      - elasticsearch
-      - zookeeper
-      - kafka1
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
@@ -57,14 +75,17 @@ services:
       - node.name=es01
       - cluster.name=es-docker-cluster
       - discovery.seed_hosts=elasticsearch
-      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - "ES_JAVA_OPTS=-Xmx1g"
       - cluster.initial_master_nodes=es01
       - node.ml=false
       - xpack.ml.enabled=false
       - xpack.monitoring.enabled=false
       - xpack.security.enabled=false
       - xpack.watcher.enabled=false
+      - xpack.graph.enabled=false
+      - xpack.reporting.enabled=false
       - bootstrap.memory_lock=false
+      - xpack.monitoring.collection.enabled=false
     ulimits:
       memlock:
         soft: -1

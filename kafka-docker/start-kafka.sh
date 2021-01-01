@@ -12,10 +12,6 @@ if [[ -z "$KAFKA_PORT" ]]; then
     export KAFKA_PORT=9092
 fi
 
-export JMX_PORT=$JMX_PORT
-
-export JMX_HOST=$JMX_HOST
-
 create-topics.sh &
 unset KAFKA_CREATE_TOPICS
 
