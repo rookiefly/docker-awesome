@@ -18,12 +18,20 @@ services:
     ports:
       - "9200:9200"
       - "9300:9300"
-  # elasticsearch browser
-  dejavu:
-    image: appbaseio/dejavu:3.4.7
-    container_name: dejavu
+
+  elastichd:
+    image: containerize/elastichd
+    container_name: elastichd
     ports:
-      - "1358:1358"
+      - "9800:9800"
+    networks:
+      - elastic
+
+  elastichq:
+    image: elastichq/elasticsearch-hq
+    container_name: elastichq
+    ports:
+      - "5000:5000"
     networks:
       - elastic
 networks:
