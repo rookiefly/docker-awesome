@@ -37,7 +37,7 @@ services:
           - rmqbroker
 
   rmqconsole:
-    image: styletang/rocketmq-console-ng
+    image: rookiefly/rocketmq-console-ng
     container_name: rmqconsole
     ports:
       - 8180:8080
