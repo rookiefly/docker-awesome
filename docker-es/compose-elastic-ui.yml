@@ -19,19 +19,11 @@ services:
       - "9200:9200"
       - "9300:9300"
 
-  elastichd:
-    image: containerize/elastichd
-    container_name: elastichd
-    ports:
-      - "9800:9800"
-    networks:
-      - elastic
-
   elastichq:
     image: elastichq/elasticsearch-hq
     container_name: elastichq
     ports:
-      - "5000:5000"
+      - "5050:5000"
     networks:
       - elastic
 networks:
