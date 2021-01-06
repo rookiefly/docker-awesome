@@ -1,0 +1,66 @@
+version: "3"
+services:
+  mongo1:
+    hostname: mongo1
+    container_name: localmongo1
+    image: mongo
+    restart: always
+    expose:
+      - 27017
+    ports:
+      - 27017:27017
+    command: "--quiet --bind_ip_all --port 27017 --replSet rs0"
+    volumes:
+      - ./db1/mongo:/data/db
+    #environment:
+    #MONGO_INITDB_ROOT_USERNAME: root
+    #MONGO_INITDB_ROOT_PASSWORD: root
+    networks:
+      - default
+
+  mongo2:
+    hostname: mongo2
+    container_name: localmongo2
+    image: mongo
+    restart: always
+    expose:
+      - 27018
+    ports:
+      - 27018:27018
+    command: "--quiet --bind_ip_all --port 27018 --replSet rs0"
+    volumes:
+      - ./db2/mongo:/data/db
+    #depends_on:
+    #- mongo1
+    networks:
+      - default
+
+  mongo3:
+    hostname: mongo3
+    container_name: localmongo3
+    image: mongo
+    restart: always
+    expose:
+      - 27019
+    ports:
+      - 27019:27019
+    command: "--quiet --bind_ip_all --port 27019 --replSet rs0"
+    volumes:
+      - ./db3/mongo:/data/db
+    #depends_on:
+    #- mongo2
+    networks:
+      - default
+      - nginx-proxy
+
+  rsinit:
+    build:
+      context: .
+      dockerfile: rsinit
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+    entrypoint: ["sh", "-c", "rs.sh"]
+    networks:
+      - default
