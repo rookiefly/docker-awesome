@@ -6,6 +6,12 @@ http:
       rule: "Host(`traefik.rookiefly.com`)"
       service: api@internal
       tls: true
+    metrics:
+      entryPoints:
+        - "websecure"
+      rule: "Host(`traefik.rookiefly.com`) && Path(`/metrics`)"
+      service: metrics@internal
+      tls: true
     whoami:
       entryPoints:
         - "websecure"

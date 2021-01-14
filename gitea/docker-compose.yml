@@ -25,6 +25,9 @@ services:
       - DB_CHARSET=utf8
       - INSTALL_LOCK=false
       - DISABLE_GRAVATAR=true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_default"
     networks:
       - traefik_default
       - gitea
