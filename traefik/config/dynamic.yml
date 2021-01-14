@@ -1,0 +1,32 @@
+http:
+  routers:
+    api:
+      entryPoints:
+        - "websecure"
+      rule: "Host(`traefik.rookiefly.com`)"
+      service: api@internal
+      tls: true
+    whoami:
+      entryPoints:
+        - "websecure"
+      rule: "Host(`traefik.rookiefly.com`) && Path(`/whoami`)"
+      service: whoami-traefik@docker
+      tls: true
+    gitea:
+      entryPoints:
+        - "websecure"
+      rule: "Host(`git.rookiefly.com`)"
+      service: gitea@docker
+      tls: true
+    ghost:
+      entryPoints:
+        - "websecure"
+      rule: "Host(`ghost.rookiefly.com`) "
+      service: ghost
+      tls: true
+
+  services:
+    ghost:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:2368/"
