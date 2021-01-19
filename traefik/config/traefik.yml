@@ -10,7 +10,7 @@ log:
 
 accessLog:
   filePath: "/var/logs/access.log"
-  # bufferingSize: 100
+  bufferingSize: 100
 
 metrics:
   prometheus: {}
@@ -20,6 +20,8 @@ entryPoints:
     address: ":80"
   websecure:
     address: ":443"
+  ssh:
+    address: ":22"
 
 tls:
   stores:
