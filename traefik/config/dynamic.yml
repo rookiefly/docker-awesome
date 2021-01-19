@@ -10,7 +10,7 @@ http:
       entryPoints:
         - "websecure"
       rule: "Host(`traefik.rookiefly.com`) && Path(`/metrics`)"
-      service: metrics@internal
+      service: prometheus@internal
       tls: true
     whoami:
       entryPoints:
