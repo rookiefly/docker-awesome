@@ -24,6 +24,12 @@ http:
       rule: "Host(`git.rookiefly.com`)"
       service: gitea@docker
       tls: true
+    harbor:
+      entryPoints:
+        - "websecure"
+      rule: "Host(`hub.rookiefly.com`)"
+      service: proxy-harbor@docker
+      tls: true
     # ghost:
     #   entryPoints:
     #     - "websecure"
