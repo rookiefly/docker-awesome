@@ -43,10 +43,10 @@ services:
         max-size: "10m"
     extra_hosts:
       - "git.rookiefly.com:127.0.0.1"
-    healthcheck:
-      test:
-        ["CMD-SHELL", "wget -q --spider --proxy off localhost:3000 || exit 1"]
-      interval: 5s
+    # healthcheck:
+    #   test:
+    #     ["CMD-SHELL", "wget -q --spider --proxy off localhost:3000 || exit 1"]
+    #   interval: 5s
 
   giteadb:
     image: mysql:5.7

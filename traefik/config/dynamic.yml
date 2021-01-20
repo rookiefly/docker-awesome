@@ -22,7 +22,7 @@ http:
       entryPoints:
         - "websecure"
       rule: "Host(`git.rookiefly.com`)"
-      service: gitea@docker
+      service: gitea-gitea@docker
       tls: true
     harbor:
       entryPoints:
@@ -47,5 +47,5 @@ tcp:
       entryPoints:
         - "ssh"
       rule: "Host(`git.rookiefly.com`)"
-      service: gitea@docker
+      service: gitea-gitea@docker
       tls: true
