@@ -18,7 +18,7 @@ http:
       rule: "Host(`traefik.rookiefly.com`) && Path(`/whoami`)"
       service: whoami-traefik@docker
       tls: true
-    gitea:
+    giteaweb:
       entryPoints:
         - "websecure"
       rule: "Host(`git.rookiefly.com`)"
