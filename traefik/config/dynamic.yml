@@ -1,42 +1,64 @@
 http:
-  middlewares:
-    httpsRedirectscheme:
-      redirectScheme:
-        scheme: https
-        permanent: true
-    httpcompress:
-      compress: {}
   routers:
     api:
+      entryPoints:
+        - "web"
+      rule: "Host(`traefik.rookiefly.com`)"
+      service: api@internal
+      middlewares:
+        - http-redirect
+    api-tls:
       entryPoints:
         - "websecure"
       rule: "Host(`traefik.rookiefly.com`)"
       service: api@internal
-      tls: true
+      tls: {}
+      middlewares:
+        - http-auth
+        - http-compress
     metrics:
       entryPoints:
         - "websecure"
       rule: "Host(`traefik.rookiefly.com`) && Path(`/metrics`)"
       service: prometheus@internal
-      tls: true
+      tls: {}
+      middlewares:
+        - http-compress
     whoami:
       entryPoints:
         - "websecure"
       rule: "Host(`traefik.rookiefly.com`) && Path(`/whoami`)"
       service: whoami-traefik@docker
-      tls: true
+      tls: {}
+      middlewares:
+        - http-compress
     giteaweb:
       entryPoints:
         - "websecure"
       rule: "Host(`git.rookiefly.com`)"
       service: giteaweb@docker
-      tls: true
+      tls: {}
+      middlewares:
+        - http-compress
     harbor:
       entryPoints:
         - "websecure"
       rule: "Host(`hub.rookiefly.com`)"
       service: proxy-harbor@docker
-      tls: true
+      tls: {}
+      middlewares:
+        - http-compress
+  middlewares:
+    http-redirect:
+      redirectScheme:
+        scheme: https
+        permanent: true
+    http-auth:
+      basicAuth:
+        users:
+          - "test:$apr1$k.xiBHjv$VdavfNvly69vNZvkKpB2j0"
+    http-compress:
+      compress: {}
     # ghost:
     #   entryPoints:
     #     - "websecure"
