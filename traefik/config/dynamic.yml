@@ -1,4 +1,8 @@
 http:
+  middlewares:
+    redirect:
+      redirectScheme:
+        scheme: https
   routers:
     api:
       entryPoints:
