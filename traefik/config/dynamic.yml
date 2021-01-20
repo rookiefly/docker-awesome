@@ -1,8 +1,11 @@
 http:
   middlewares:
-    redirect:
+    httpsRedirectscheme:
       redirectScheme:
         scheme: https
+        permanent: true
+    httpcompress:
+      compress: {}
   routers:
     api:
       entryPoints:
@@ -26,7 +29,7 @@ http:
       entryPoints:
         - "websecure"
       rule: "Host(`git.rookiefly.com`)"
-      service: gitea-gitea@docker
+      service: giteaweb@docker
       tls: true
     harbor:
       entryPoints:
@@ -45,11 +48,11 @@ http:
   #     loadBalancer:
   #       servers:
   #         - url: "http://127.0.0.1:2368/"
-tcp:
-  routers:
-    gitea:
-      entryPoints:
-        - "ssh"
-      rule: "Host(`git.rookiefly.com`)"
-      service: gitea-gitea@docker
-      tls: true
+# tcp:
+#   routers:
+#     giteassh:
+#       entryPoints:
+#         - "ssh"
+#       rule: "HostSNI(`git.rookiefly.com`)"
+#       service: giteassh@docker
+#       tls: true

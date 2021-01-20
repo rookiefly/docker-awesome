@@ -7,10 +7,9 @@ providers:
 
 log:
   level: DEBUG
-
-accessLog:
-  filePath: "/var/logs/access.log"
-  bufferingSize: 100
+  filePath: "/logdata/traefik.log"
+# accessLog:
+#   filePath: "/logdata/access.log"
 
 metrics:
   prometheus: {}
@@ -21,7 +20,7 @@ entryPoints:
   websecure:
     address: ":443"
   ssh:
-    address: ":22"
+    address: ":2222"
 
 tls:
   stores:

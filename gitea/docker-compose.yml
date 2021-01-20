@@ -2,35 +2,42 @@ version: "3.6"
 
 services:
   gitea:
-    image: gitea/gitea:1
+    image: gitea/gitea:1.13.1
     container_name: gitea
     environment:
       - USER_UID=1000
       - USER_GID=1000
-      - APP_NAME=Private
+      - APP_NAME=Gitea
       - RUN_MODE=prod
       - RUN_USER=git
       - SSH_DOMAIN=git.rookiefly.com
-      - SSH_PORT=22
-      - SSH_LISTEN_PORT=22
-      #- DISABLE_SSH=true
+      - SSH_PORT=0
+      - SSH_LISTEN_PORT=0
+      - DISABLE_SSH=true
       - HTTP_PORT=3000
       - ROOT_URL=https://git.rookiefly.com
-      - LFS_START_SERVER=false
       - DB_TYPE=mysql
       - DB_HOST=giteadb
       - DB_NAME=gitea
       - DB_USER=gitea
       - DB_PASSWD=gitea
       - DB_CHARSET=utf8
-      - INSTALL_LOCK=false
-      - DISABLE_GRAVATAR=true
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik_default"
+      - "traefik.http.services.giteaweb.loadbalancer.server.scheme=http"
+      - "traefik.http.services.giteaweb.loadbalancer.server.port=3000"
+      # - "traefik.tcp.routers.giteassh.rule=HostSNI(`*`)"
+      # - "traefik.tcp.routers.giteassh.tls=true"
+      # - "traefik.tcp.routers.giteassh.entrypoints=ssh"
+      # - "traefik.tcp.routers.giteassh.service=gitea"
+      # - "traefik.tcp.services.gitea.loadbalancer.server.port=22"
     networks:
       - traefik_default
       - gitea
+    expose:
+      - 3000
+      # - 22
     restart: unless-stopped
     volumes:
       # - /etc/localtime:/etc/localtime:ro
